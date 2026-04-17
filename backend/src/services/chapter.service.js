@@ -1,46 +1,61 @@
 const Chapter = require('../models/Chapter');
+const { cloudinary } = require('../configs/cloudinary');
+const fs = require('fs');
+
+// Logic lấy danh sách chương của 1 truyện
+exports.getChaptersByMangaId = async (mangaId) => {
+  return await Chapter.find({ mangaId })
+    .select('chapterNumber chapterTitle createdAt')
+    .sort({ chapterNumber: -1 });
+};
+
+// Logic lấy nội dung chi tiết 1 chương để đọc
+exports.getChapterById = async (id) => {
+  const chapter = await Chapter.findById(id);
+  if (!chapter) throw new Error("Không tìm thấy chương này");
+  return chapter;
+};
 
 exports.createChapter = async (chapterData, files) => {
-    if (!files || files.length === 0) {
-        throw new Error("Vui lòng upload các trang truyện.");
-    }
+  // Kiểm tra nếu không có file nào được gửi lên
+  if (!files || files.length === 0) {
+    throw new Error("Vui lòng upload ít nhất một ảnh cho chương!");
+  }
 
-    // 1. Sắp xếp file theo tên để đảm bảo đúng thứ tự trang (1.jpg, 2.jpg...)
-    const sortedFiles = files.sort((a, b) => 
-        a.originalname.localeCompare(b.originalname, undefined, { numeric: true })
-    );
+  const { mangaId, chapterNumber, chapterTitle } = chapterData;
 
-    const images = [];
-    const seenFiles = new Set();
-
-    // 2. Lọc trùng lặp dựa trên tên file và kích thước
-    for (const file of sortedFiles) {
-        const fileIdentifier = `${file.originalname}-${file.size}`;
-        
-        if (!seenFiles.has(fileIdentifier)) {
-            images.push({
-                url: file.path,
-                cloudinary_id: file.filename
-            });
-            seenFiles.add(fileIdentifier);
-        } else {
-            // Tùy chọn: Bạn có thể log ra để biết file nào bị trùng
-            console.log(`Bỏ qua file trùng: ${file.originalname}`);
-        }
-    }
-
-    // 3. Kiểm tra logic: Một Manga không nên có 2 Chapter trùng số (chapterNumber)
-    const existingChapter = await Chapter.findOne({
-        mangaId: chapterData.mangaId,
-        chapterNumber: chapterData.chapterNumber
-    });
-
+  try {
+    const existingChapter = await Chapter.findOne({ mangaId, chapterNumber });
     if (existingChapter) {
-        throw new Error(`Chapter ${chapterData.chapterNumber} của bộ truyện này đã tồn tại.`);
+      throw new Error(`Chương số ${chapterNumber} đã tồn tại!`);
     }
 
-    return await Chapter.create({
-        ...chapterData,
-        images: images
+    const imageUrls = [];
+    
+    // Upload lần lượt để giữ đúng thứ tự trang truyện
+    for (const file of files) {
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: `manga-qyn/chapters/${mangaId}/ch-${chapterNumber}`,
+      });
+      imageUrls.push(result.secure_url);
+      
+      // Xóa file ngay sau khi upload xong 1 ảnh để giải phóng bộ nhớ
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+    }
+
+    const newChapter = new Chapter({
+      mangaId,
+      chapterNumber,
+      chapterTitle,
+      images: imageUrls 
     });
+
+    return await newChapter.save();
+  } catch (error) {
+    // Dọn dẹp nếu lỗi
+    if (files) {
+      files.forEach(f => { if (fs.existsSync(f.path)) fs.unlinkSync(f.path); });
+    }
+    throw error;
+  }
 };

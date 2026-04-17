@@ -24,7 +24,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <h1 className="text-[#ebebeb] text-2xl font-black tracking-tighter cursor-pointer">
-              TRUYEN<span className="text-[#ffd43b]">QQ</span>
+              Manga<span className="text-[#ffd43b]">Qyn</span>
             </h1>
             <nav className="hidden lg:flex gap-6 text-sm font-semibold uppercase">
               <a href="#" className="hover:text-white">Hot</a>

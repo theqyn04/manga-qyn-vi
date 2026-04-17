@@ -29,4 +29,18 @@ const deleteImage = async (publicId) => {
   }
 };
 
-module.exports = { uploadCloud, deleteImage };
+
+// Cấu hình lưu tạm trên đĩa (diskStorage) để có 'file.path' cho việc upload chapter
+const diskStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Đảm bảo bạn đã tạo thư mục /uploads ở gốc backend
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+const uploadDisk = multer({ storage: diskStorage });
+
+
+module.exports = { cloudinary , uploadCloud, deleteImage, uploadDisk };
