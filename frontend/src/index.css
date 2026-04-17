@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  background-color: #111827; /* Màu bg-gray-900 để tránh bị trắng trang khi chưa load xong */
+}
