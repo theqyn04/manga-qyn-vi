@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   username: { 
@@ -46,5 +47,15 @@ const userSchema = new mongoose.Schema({
 
 // Index để tìm kiếm lịch sử đọc nhanh hơn
 userSchema.index({ "readingHistory.mangaId": 1 });
+
+userSchema.pre('save', async function() {
+  if (!this.isModified('password')) return;
+  const bcrypt = require('bcryptjs');
+  this.password = await bcrypt.hash(this.password, 12);
+});
+
+userSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 module.exports = mongoose.model('User', userSchema);

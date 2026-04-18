@@ -5,7 +5,9 @@ const morgan = require('morgan');
 
 // Import Routes
 const mangaRoutes = require('./routes/manga.routes');
-const chapterRoutes = require('./routes/chapter.routes'); // Route mới cho Chapter
+const chapterRoutes = require('./routes/chapter.routes');
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Chia prefix rõ ràng để dễ quản lý API versioning sau này
 app.use('/', mangaRoutes);
 app.use('/chapters', chapterRoutes);
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
 
 // 4. XỬ LÝ ROUTE KHÔNG TỒN TẠI (404)
 app.use((req, res, next) => {
