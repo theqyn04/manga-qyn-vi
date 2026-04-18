@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
 const MangaDetail = () => {
-  const { id } = useParams(); // Lấy ID từ URL: /manga/:id
+  const { id } = useParams();
   const [manga, setManga] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,73 +21,113 @@ const MangaDetail = () => {
     fetchMangaDetail();
   }, [id]);
 
-  if (loading) return <div className="text-white text-center py-10">Đang tải...</div>;
-  if (!manga) return <div className="text-white text-center py-10">Không tìm thấy truyện!</div>;
+  if (loading) return <div className="text-notion-gray500 text-center py-20 font-medium">Đang tải...</div>;
+  if (!manga) return <div className="text-notion-gray500 text-center py-20 font-medium">Không tìm thấy truyện!</div>;
 
   return (
-    <div className="bg-[#1a1a1a] min-h-screen text-[#ccc]">
-      <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb - Giống TruyenQQ */}
-        <div className="text-xs mb-4 flex gap-2 items-center text-gray-500">
-          <Link to="/" className="hover:text-[#ffd43b]">Trang chủ</Link>
-          <span>/</span>
-          <span className="text-gray-300">{manga.title}</span>
+    <div className="bg-white min-h-screen text-notion-black antialiased font-sans">
+      <div className="max-w-[1100px] mx-auto px-6 py-12">
+        
+        {/* Breadcrumb - Notion Style (Xám mảnh) */}
+        <div className="text-[14px] mb-8 flex gap-2 items-center text-notion-gray500">
+          <Link to="/" className="hover:text-notion-black transition-colors">Trang chủ</Link>
+          <span className="text-notion-border">/</span>
+          <span className="text-notion-black font-medium">{manga.title}</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Cột trái: Ảnh bìa & Trạng thái */}
-          <div className="md:col-span-1">
-            <img 
-              src={manga.thumbnail} 
-              alt={manga.title} 
-              className="w-full rounded shadow-lg border border-[#333]"
-            />
-            <div className="mt-4 space-y-2 text-sm">
-              <p><strong>Tác giả:</strong> {manga.author || 'Đang cập nhật'}</p>
-              <p><strong>Trạng thái:</strong> <span className="text-green-500">Đang tiến hành</span></p>
-              <p><strong>Lượt xem:</strong> 1,234,567</p>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
+          
+          {/* Cột trái: Ảnh bìa & Trạng thái Properties */}
+          <div className="md:col-span-3">
+            <div className="rounded-[12px] overflow-hidden border border-notion-border shadow-notion">
+              <img 
+                src={manga.thumbnail} 
+                alt={manga.title} 
+                className="w-full h-auto object-cover"
+              />
             </div>
-            <button className="w-full mt-4 bg-[#ffd43b] text-black font-bold py-2 rounded hover:bg-yellow-500 transition-colors uppercase">
-              Đọc từ đầu
+            
+            {/* Properties Table - Đặc trưng của Notion */}
+            <div className="mt-8 space-y-1 border-t border-notion-border pt-4">
+              <div className="flex py-2 text-[14px] border-b border-notion-border/30">
+                <span className="w-24 text-notion-gray500 shrink-0">👤 Tác giả</span>
+                <span className="font-medium">{manga.author || 'Đang cập nhật'}</span>
+              </div>
+              <div className="flex py-2 text-[14px] border-b border-notion-border/30">
+                <span className="w-24 text-notion-gray500 shrink-0">🟢 Trạng thái</span>
+                <span className="font-medium text-notion-blue">Đang tiến hành</span>
+              </div>
+              <div className="flex py-2 text-[14px] border-b border-notion-border/30">
+                <span className="w-24 text-notion-gray500 shrink-0">👁️ Lượt xem</span>
+                <span className="font-medium">1,234,567</span>
+              </div>
+            </div>
+
+            <button className="w-full mt-8 bg-notion-blue text-white font-bold py-2.5 rounded-[4px] hover:bg-notion-blueActive transition-all shadow-sm">
+              ĐỌC TỪ ĐẦU
             </button>
           </div>
 
           {/* Cột phải: Nội dung & Danh sách chương */}
-          <div className="md:col-span-3">
-            <h1 className="text-2xl font-bold text-white uppercase mb-4">{manga.title}</h1>
+          <div className="md:col-span-9">
+            <h1 className="text-[42px] font-bold text-notion-black tracking-notionSub leading-tight mb-8">
+              {manga.title}
+            </h1>
             
-            {/* Mô tả truyện */}
-            <div className="bg-[#222] p-4 rounded border border-[#333] mb-6">
-              <h3 className="text-[#ffd43b] font-bold mb-2 uppercase text-sm">Nội dung</h3>
-              <p className="text-sm leading-relaxed">{manga.description || 'Chưa có mô tả cho bộ truyện này.'}</p>
+            {/* Mô tả truyện - Box trắng ấm */}
+            <div className="bg-notion-warmWhite p-6 rounded-[8px] border border-notion-border mb-12">
+              <h3 className="text-notion-gray500 font-bold mb-3 uppercase text-[12px] tracking-wider">Mô tả nội dung</h3>
+              <p className="text-[16px] leading-[1.6] text-notion-warmDark">
+                {manga.description || 'Chưa có mô tả cho bộ truyện này.'}
+              </p>
             </div>
 
-            {/* Danh sách chương */}
-            <div className="bg-[#222] rounded border border-[#333]">
-              <div className="p-3 border-b border-[#333] flex items-center gap-2">
-                <span className="text-[#ffd43b]">☰</span>
-                <h3 className="font-bold uppercase text-sm">Danh sách chương</h3>
+            {/* Danh sách chương - Table style */}
+            <div className="mb-4 flex items-center gap-3">
+              <h3 className="text-[22px] font-bold tracking-notionCard">Danh sách chương</h3>
+              <span className="px-2 py-0.5 bg-notion-warmWhite border border-notion-border rounded-[4px] text-[12px] text-notion-gray500">
+                {manga.chapters?.length || 0}
+              </span>
+            </div>
+
+            <div className="border border-notion-border rounded-[8px] overflow-hidden shadow-sm bg-white">
+              {/* Table Header */}
+              <div className="grid grid-cols-12 bg-notion-warmWhite px-4 py-2 border-b border-notion-border text-[12px] font-bold text-notion-gray500 uppercase">
+                <div className="col-span-9">Tên chương</div>
+                <div className="col-span-3 text-right">Ngày cập nhật</div>
               </div>
-              <div className="max-h-[500px] overflow-y-auto">
+
+              {/* Scrollable List */}
+              <div className="max-h-[600px] overflow-y-auto divide-y divide-notion-border">
                 {manga.chapters && manga.chapters.length > 0 ? (
                   manga.chapters.map((chapter) => (
-                    <div key={chapter._id} className="flex justify-between p-3 border-b border-[#333] hover:bg-[#2a2a2a] text-sm">
-                      <Link to={`/chapter/${chapter._id}`} className="hover:text-[#ffd43b]">
-                        Chương {chapter.chapterNumber}: {chapter.title}
-                      </Link>
-                      <span className="text-gray-500 italic text-xs">
+                    <Link 
+                      key={chapter._id} 
+                      to={`/chapter/${chapter._id}`}
+                      className="grid grid-cols-12 px-4 py-3 hover:bg-notion-warmWhite transition-colors items-center group"
+                    >
+                      <div className="col-span-9 text-[15px] font-medium text-notion-black group-hover:text-notion-blue transition-colors">
+                        Chương {chapter.chapterNumber}{chapter.title ? `: ${chapter.title}` : ''}
+                      </div>
+                      <div className="col-span-3 text-right text-[13px] text-notion-gray300">
                         {new Date(chapter.createdAt).toLocaleDateString('vi-VN')}
-                      </span>
-                    </div>
+                      </div>
+                    </Link>
                   ))
                 ) : (
-                  <p className="p-4 text-center text-gray-500 italic">Chương đang được cập nhật...</p>
+                  <div className="p-8 text-center text-notion-gray300 italic text-[14px]">
+                    Dữ liệu chương đang được cập nhật...
+                  </div>
                 )}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <footer className="py-20 border-t border-notion-border text-center">
+        <p className="text-notion-gray300 text-[14px]">© 2026 MangaQyn — Minimalist Experience</p>
+      </footer>
     </div>
   );
 };

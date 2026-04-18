@@ -1,10 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@theme {
+  /* Khai báo màu sắc */
+  --color-notion-white: #ffffff;
+  --color-notion-warm-white: #f6f5f4;
+  --color-notion-black: rgba(0, 0, 0, 0.95);
+  --color-notion-warm-dark: #31302e;
+  --color-notion-gray-500: #615d59;
+  --color-notion-gray-300: #a39e98;
+  --color-notion-blue: #0075de;
+  --color-notion-blue-active: #005bab;
+  --color-notion-border: rgba(0, 0, 0, 0.1);
+
+  /* Khai báo khoảng cách chữ */
+  --tracking-notion-tight: -2.125px;
+  --tracking-notion-sub: -0.625px;
+  --tracking-notion-card: -0.25px;
+
+  /* Khai báo đổ bóng */
+  --shadow-notion: rgba(0,0,0,0.04) 0px 4px 18px, rgba(0,0,0,0.027) 0px 2.025px 7.84688px, rgba(0,0,0,0.02) 0px 0.8px 2.925px, rgba(0,0,0,0.01) 0px 0.175px 1.04062px;
+}
+
+/* Thiết lập mặc định cho toàn trang */
+@layer base {
+  body {
+    @apply antialiased text-notion-black bg-white;
+    font-family: 'Inter', -apple-system, sans-serif;
+  }
+}
+
+:root {
+  --notion-border: rgba(0, 0, 0, 0.1);
+  --notion-warm-white: #f6f5f4;
+}
+
 body {
   margin: 0;
-  background-color: #111827; /* Màu bg-gray-900 để tránh bị trắng trang khi chưa load xong */
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: #ffffff;
+}
+
+.notion-strip img {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
