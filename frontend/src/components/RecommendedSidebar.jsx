@@ -1,34 +1,76 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { Star } from 'lucide-react';
+import { MANGA_CATEGORIES } from '../constants/categories';
 
-const RecommendedSidebar = () => {
-  const items = [1, 2, 3, 4, 5]; // Giả lập dữ liệu
-  
+const RecommendedSidebar = ({ allMangas = [] }) => {
+  // Logic lấy ngẫu nhiên 5 truyện từ danh sách backend
+  const recommendedMangas = useMemo(() => {
+    if (!allMangas.length) return [];
+    return [...allMangas]
+      .sort(() => 0.5 - Math.random()) // Xáo trộn mảng
+      .slice(0, 5); // Lấy 5 truyện đầu sau khi xáo
+  }, [allMangas]);
+
   return (
-    <aside className="space-y-6">
-      <h3 className="text-[14px] font-bold text-notion-gray300 uppercase tracking-widest border-b border-notion-border pb-2">
-        Truyện đề cử
-      </h3>
-      <div className="space-y-4">
-        {items.map((i) => (
-          <div key={i} className="flex gap-4 group cursor-pointer p-2 -mx-2 rounded-[8px] hover:bg-notion-warmWhite transition-colors">
-            <div className="w-14 h-20 bg-notion-warmWhite border border-notion-border rounded-[4px] overflow-hidden shrink-0 shadow-sm">
-              <div className="w-full h-full bg-gray-200 animate-pulse" /> {/* Placeholder cho thumbnail */}
-            </div>
-            <div className="flex flex-col justify-center">
-              <h4 className="text-[14px] font-bold text-notion-black line-clamp-1 group-hover:text-notion-blue transition-colors">
-                Tên truyện đề cử {i}
-              </h4>
-              <p className="text-[12px] text-notion-gray500 mt-1">Chương 120</p>
-              <div className="flex items-center gap-1 mt-1 text-[11px] text-notion-gray300">
-                <span>⭐ 4.8</span>
-                <span>•</span>
-                <span>12k views</span>
+    <div className="space-y-10">
+      {/* TRUYỆN ĐỀ CỬ */}
+      <section>
+        <h3 className="text-[16px] font-bold text-notion-black mb-4 uppercase tracking-wider">
+          Truyện đề cử
+        </h3>
+        <div className="space-y-4">
+          {recommendedMangas.map((manga) => (
+            <Link 
+              key={manga._id} 
+              to={`/manga/${manga._id}`} 
+              className="flex gap-3 group items-start"
+            >
+              <div className="w-16 h-20 flex-shrink-0 rounded overflow-hidden border border-notion-border bg-notion-warmWhite">
+                <img 
+                  src={manga.thumbnail || manga.coverImage} 
+                  alt={manga.title} 
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                />
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </aside>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-[13px] font-bold text-notion-black truncate group-hover:text-notion-blue transition-colors">
+                  {manga.title}
+                </h4>
+                <p className="text-[11px] text-notion-gray500 mt-0.5">
+                  Chương {manga.latestChapter?.match(/\d+/)?.[0] || '??'}
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-0.5 text-orange-400">
+                    <Star className="w-3 h-3 fill-current" />
+                    <span className="text-[11px] font-medium text-notion-black">4.8</span>
+                  </div>
+                  <span className="text-[11px] text-notion-gray400">• 12k views</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* THỂ LOẠI (Giữ nguyên hoặc dùng grid-cols-2 như trước) */}
+      <section>
+        <h3 className="text-[16px] font-bold text-notion-black mb-4 uppercase tracking-wider">
+          Thể loại truyện
+        </h3>
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1 border border-notion-border rounded-lg p-3 bg-white">
+          {MANGA_CATEGORIES.slice(0, 18).map((cat) => (
+            <Link 
+              key={cat.id} 
+              to={`/category/${cat.id}`}
+              className="text-[12px] text-notion-gray500 hover:text-notion-black hover:bg-notion-warmWhite px-2 py-1.5 rounded transition-all"
+            >
+              {cat.label}
+            </Link>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 };
 

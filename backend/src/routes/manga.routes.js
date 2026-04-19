@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { uploadCloud } = require('../configs/cloudinary');
-const { getAllManga , getMangaById , createManga , updateManga , deleteManga } = require('../controllers/manga.controller');
+const { getAllManga , searchManga , getMangaById , createManga , updateManga , deleteManga } = require('../controllers/manga.controller');
+
+
+router.get('/search', getAllManga);
 
 // GET 
 router.get('/', getAllManga);

@@ -31,6 +31,32 @@ exports.queryMangas = async (query) => {
     };
 };
 
+exports.searchMangas = async (query) => {
+    const { q, page = 1, limit = 10 } = query;
+    
+    // Khóa điều kiện: Không có q thì không trả về data
+    if (!q || q.trim() === "") {
+        return { mangas: [], pagination: { total: 0, currentPage: 1, totalPages: 0 } };
+    }
+
+    const filter = {
+        title: { $regex: q.trim(), $options: 'i' }
+    };
+
+    const skip = (page - 1) * limit;
+    const mangas = await Manga.find(filter)
+        .limit(Number(limit))
+        .skip(skip)
+        .sort({ createdAt: -1 });
+
+    const total = await Manga.countDocuments(filter);
+
+    return {
+        mangas,
+        pagination: { total, currentPage: Number(page), totalPages: Math.ceil(total / limit) }
+    };
+};
+
 
 // UPDATE: Cập nhật thông tin
 exports.updateManga = async (id, updateData, file) => {

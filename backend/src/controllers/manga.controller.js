@@ -17,6 +17,19 @@ exports.getAllManga = async (req, res) => {
     }
 };
 
+exports.searchManga = async (req, res) => {
+    try {
+        const result = await mangaService.searchMangas(req.query);
+        res.status(200).json({
+            success: true,
+            count: result.mangas.length,
+            pagination: result.pagination,
+            data: result.mangas
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 // Tạo mới một bộ truyện, bao gồm upload ảnh bìa lên Cloudinary
 exports.createManga = async (req, res) => {
