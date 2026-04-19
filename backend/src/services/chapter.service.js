@@ -17,7 +17,6 @@ exports.getChapterById = async (id) => {
 };
 
 exports.createChapter = async (chapterData, files) => {
-  // Kiểm tra nếu không có file nào được gửi lên
   if (!files || files.length === 0) {
     throw new Error("Vui lòng upload ít nhất một ảnh cho chương!");
   }
@@ -26,22 +25,21 @@ exports.createChapter = async (chapterData, files) => {
 
   try {
     const existingChapter = await Chapter.findOne({ mangaId, chapterNumber });
-    if (existingChapter) {
-      throw new Error(`Chương số ${chapterNumber} đã tồn tại!`);
-    }
+    if (existingChapter) throw new Error(`Chương số ${chapterNumber} đã tồn tại!`);
 
-    const imageUrls = [];
-    
-    // Upload lần lượt để giữ đúng thứ tự trang truyện
-    for (const file of files) {
-      const result = await cloudinary.uploader.upload(file.path, {
+    // 1. Tạo danh sách các Promise upload
+    const uploadPromises = files.map((file) => 
+      cloudinary.uploader.upload(file.path, {
         folder: `manga-qyn/chapters/${mangaId}/ch-${chapterNumber}`,
-      });
-      imageUrls.push(result.secure_url);
-      
-      // Xóa file ngay sau khi upload xong 1 ảnh để giải phóng bộ nhớ
-      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-    }
+      }).then(result => {
+        // Xóa file ngay sau khi upload thành công một cái
+        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        return result.secure_url;
+      })
+    );
+
+    // 2. Thực thi tất cả cùng lúc
+    const imageUrls = await Promise.all(uploadPromises);
 
     const newChapter = new Chapter({
       mangaId,
@@ -52,7 +50,7 @@ exports.createChapter = async (chapterData, files) => {
 
     return await newChapter.save();
   } catch (error) {
-    // Dọn dẹp nếu lỗi
+    // Dọn dẹp tất cả file tạm nếu có lỗi xảy ra giữa chừng
     if (files) {
       files.forEach(f => { if (fs.existsSync(f.path)) fs.unlinkSync(f.path); });
     }
